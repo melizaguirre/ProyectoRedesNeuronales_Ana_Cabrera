@@ -1,4 +1,7 @@
 import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
 
 def encode_to_numbers(word):
     word = word.lower() 
@@ -13,6 +16,15 @@ def encode_to_numbers(word):
     
     return np.array(start_on1)
 
+palindromes = ["radar", "level", "civic", "rotor", "kayak", "madam", "refer", "racecar", "deed", "noon", "pop", "solos", "stats", "wow", "tenet"]
+no_palindromes = ["apple", "banana", "orange", "pencil", "tiger", "monkey", "school", "guitar", "bottle", "travel", "rocket", "jumper", "dragon", "laptop", "engine"]
+
+data = palindromes + no_palindromes
+labels = [1] * len(palindromes) + [0] * len(no_palindromes)
+
+X = np.array([encode_to_numbers(word) for word in data])
+y = np.array(labels)
+
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
@@ -22,24 +34,31 @@ def relu(x):
 
 def is_palindrome(word_vector):
     entrada = 8   
-    capa_oculta = 16  
+    capa_oculta_1 = 16  
+    capa_oculta_2 = 8  
     salida = 1  
 
     np.random.seed(42)  
 
-    W1 = np.random.randn(entrada, capa_oculta)  
-    b1 = np.random.randn(capa_oculta)  
+    W1 = np.random.randn(entrada, capa_oculta_1) * 0.01  
+    b1 = np.random.randn(capa_oculta_1) * 0.01  
 
-    W2 = np.random.randn(capa_oculta, salida) 
-    b2 = np.random.randn(salida) 
+    W2 = np.random.randn(capa_oculta_1, capa_oculta_2) * 0.01  
+    b2 = np.random.randn(capa_oculta_2) * 0.01  
 
-    entrada_capa_oculta = np.dot(word_vector, W1) + b1
-    salida_Capa_oculta = relu(entrada_capa_oculta)  
-    
-    output_layer_input = np.dot(salida_Capa_oculta, W2) + b2
-    predicted_output = sigmoid(output_layer_input)  
-    
-    return predicted_output
+    W3 = np.random.randn(capa_oculta_2, salida) * 0.01 
+    b3 = np.random.randn(salida) * 0.01  
+
+    entrada_capa_oculta1 = np.dot(word_vector, W1) + b1
+    salida_capa_oculta1 = relu(entrada_capa_oculta1)
+
+    entrada_capa_oculta2 = np.dot(salida_capa_oculta1, W2) + b2
+    salida_capa_oculta2 = relu(entrada_capa_oculta2)
+
+    output_layer_input = np.dot(salida_capa_oculta2, W3) + b3
+    predicted_output = sigmoid(output_layer_input)
+
+    return predicted_output.item()
 
 
 def predict_palindrome():
