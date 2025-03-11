@@ -9,3 +9,32 @@ class CapaDensa:
         self.entrada = datos_entrada
         self.salida = np.dot(datos_entrada, self.pesos)+ self.sesgos
         return self.salida  
+
+    def backward(self, grad_salida, tasa_aprendizaje=0.1):
+        grad_pesos = np.dot(self.entrada.T, grad_salida)
+        grad_sesgos = np.sum(grad_salida, axis=0, keepdims=True)
+        grad_entrada = np.dot(grad_salida, self.pesos.T)
+        
+        self.pesos -= tasa_aprendizaje * grad_pesos
+        self.sesgos -= tasa_aprendizaje * grad_sesgos
+        
+        return grad_entrada
+
+class ReLU:
+    def forward(self, x):
+        self.entrada = x
+        return np.maximum(0, x)
+
+    def backward(self, grad_salida)
+        grad_entrada = grad_salida * (self.entrada > 0)
+        return grad_entrada
+
+class Softmax:
+    def forward(self, x):
+        exp_x = np.exp(x - np.max(x, axis = 1, keepdims= True))
+        self.salida = exp_x / np.sum(exp_x, axis = 1, keepdims=True)
+        return self.salida
+        
+        def backward(self, grad_salida):
+            
+        return grad_salida
