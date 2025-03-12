@@ -25,7 +25,7 @@ class ReLU:
         self.entrada = x
         return np.maximum(0, x)
 
-    def backward(self, grad_salida)
+    def backward(self, grad_salida):
         grad_entrada = grad_salida * (self.entrada > 0)
         return grad_entrada
 
