@@ -55,12 +55,12 @@ mnist_train.load(train_images_path, train_labels_path)
 print(mnist_train.images.shape)
 print(mnist_train.labels.shape)
 
-#displayImage(mnist_train.images[0], "MNIST Image 1")
-#displayImage(mnist_train.images[1], "MNIST Image 2")
-#displayImage(mnist_train.images[2], "MNIST Image 3")
-print(mnist_train.one_hot_labels[0])  
-print(mnist_train.one_hot_labels[1])  
-print(mnist_train.one_hot_labels[2])
+displayImage(mnist_train.images[0], "MNIST Image 1")
+displayImage(mnist_train.images[1], "MNIST Image 2")
+displayImage(mnist_train.images[2], "MNIST Image 3")
+#print(mnist_train.one_hot_labels[0])  
+#print(mnist_train.one_hot_labels[1])  
+#print(mnist_train.one_hot_labels[2])
 
 
 print(f"Labels: {mnist_train.labels[0]}, {mnist_train.labels[1]}, {mnist_train.labels[2]}")

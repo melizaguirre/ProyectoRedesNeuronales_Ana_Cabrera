@@ -36,5 +36,12 @@ class Softmax:
         return self.salida
         
         def backward(self, grad_salida):
+            batch_size = grad_salida.shape[0]
+        grad_entrada = np.zeros_like(grad_salida)
+        
+        for i in range(batch_size):
+            softmax_output = self.salida[i]
             
+            jacobian = np.diag(softmax_output) - np.outer(softmax_output, softmax_output)
+            grad_entrada[i] = np.dot(jacobian, grad_salida[i])
         return grad_salida
