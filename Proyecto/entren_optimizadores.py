@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from red_neuronal import CapaDensa, ReLU, Softmax
 from funciones_perdida import crossEntropyLoss
 from Mnist.MnistDataset import MnistDataset
+from optimizadores import Optimizer_SGD, Optimizer_Adam
 
 
 mnist = MnistDataset()
@@ -13,7 +14,7 @@ Y_train = mnist.one_hot_labels
 entrada_dim = 784
 oculta_dim = 128
 salida_dim = 10
-tasa_aprendizaje = 0.1
+tasa_aprendizaje = 0.001
 num_epochs = 10  
 
 
@@ -24,9 +25,12 @@ softmax = Softmax()
 loss_fn = crossEntropyLoss()
 
 pérdidas = []
+optimizer = Optimizer_Adam(learning_rate=0.001, decay=1e-4)
 
 for epoch in range(num_epochs):
+    optimizer.pre_update_params() 
     loss_total = 0
+
     for i in range(len(X_train)):
         x = X_train[i:i+1]  
         y = Y_train[i:i+1]  
@@ -39,13 +43,16 @@ for epoch in range(num_epochs):
         loss = loss_fn.forward(salida_softmax, y)
         loss_total += loss
 
-        grad_loss = loss_fn.backward()
-        grad_softmax = capa2.backward(grad_loss, tasa_aprendizaje)
+        grad_loss = loss_fn.backward()  
+        grad_softmax = capa2.backward(grad_loss)  
         grad_relu = relu.backward(grad_softmax)
-        capa1.backward(grad_relu, tasa_aprendizaje)
+        grad_entrada = capa1.backward(grad_relu)
 
-    print(f"Época {epoch+1}/{num_epochs}, Pérdida: {loss_total/len(X_train)}")
+    optimizer.post_update_params()  
+
     pérdidas.append(loss_total / len(X_train))
+
+    print(f"Época {epoch+1}/{num_epochs}, Pérdida: {pérdidas[-1]}")
 
 
 plt.plot(range(num_epochs), pérdidas)
