@@ -14,7 +14,7 @@ entrada_dim = 784
 oculta_dim = 128
 salida_dim = 10
 tasa_aprendizaje = 0.1
-num_epochs = 10  
+num_epochs = 40  
 
 
 capa1 = CapaDensa(entrada_dim, oculta_dim)
@@ -27,6 +27,8 @@ pérdidas = []
 
 for epoch in range(num_epochs):
     loss_total = 0
+    correctos_epoch = 0
+
     for i in range(len(X_train)):
         x = X_train[i:i+1]  
         y = Y_train[i:i+1]  
@@ -39,12 +41,18 @@ for epoch in range(num_epochs):
         loss = loss_fn.forward(salida_softmax, y)
         loss_total += loss
 
+        prediccion = np.argmax(salida_softmax)
+        etiqueta_verdadera = np.argmax(y)
+        if prediccion == etiqueta_verdadera:
+            correctos_epoch += 1 
+
         grad_loss = loss_fn.backward()
         grad_softmax = capa2.backward(grad_loss, tasa_aprendizaje)
         grad_relu = relu.backward(grad_softmax)
         capa1.backward(grad_relu, tasa_aprendizaje)
+    precision_epoch = (correctos_epoch / len(X_train)) * 100
 
-    print(f"Época {epoch+1}/{num_epochs}, Pérdida: {loss_total/len(X_train)}")
+    print(f"Época {epoch+1}/{num_epochs}, Pérdida: {loss_total/len(X_train):.4f}, Precisión: {precision_epoch:.2f}%")
     pérdidas.append(loss_total / len(X_train))
 
 
