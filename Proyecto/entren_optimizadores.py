@@ -13,16 +13,20 @@ Y_train = mnist.one_hot_labels
 
 
 entrada_dim = 784
-oculta_dim = 128
+oculta_dim1 = 128
+oculta_dim2 = 64
 salida_dim = 10
 tasa_aprendizaje = 0.01
-num_epochs = 50  
+num_epochs = 50 
+batch_size = 64 
 
-l2_lambda = 0.001
+l2_lambda = 0.0001
 
-capa1 = CapaDensa(entrada_dim, oculta_dim, l2_lambda)
-relu = ReLU()
-capa2 = CapaDensa(oculta_dim, salida_dim, l2_lambda)
+capa1 = CapaDensa(entrada_dim, oculta_dim1, l2_lambda)
+relu1 = ReLU()
+capa2 = CapaDensa(oculta_dim1, oculta_dim2, l2_lambda)  # Segunda capa oculta
+relu2 = ReLU()
+capa3 = CapaDensa(oculta_dim2, salida_dim, l2_lambda)
 softmax = Softmax()
 loss_fn = crossEntropyLoss()
 
@@ -38,43 +42,50 @@ for epoch in range(num_epochs):
     loss_total = 0
     correctos = 0  
     total = len(X_train)
+    
+    num_batches = total // batch_size  
+    
+    for batch in range(num_batches):
+        inicio = batch * batch_size
+        fin = inicio + batch_size
 
-    for i in range(total):
-        x = X_train[i:i+1]  
-        y = Y_train[i:i+1]  
+        x_batch = X_train[inicio:fin]  
+        y_batch = Y_train[inicio:fin]  
 
-        
-        salida1 = capa1.forward(x)
-        salida_relu = relu.forward(salida1)
-        salida2 = capa2.forward(salida_relu)
-        salida_softmax = softmax.forward(salida2)
+        salida1 = capa1.forward(x_batch)
+        salida_relu1 = relu1.forward(salida1)
 
-        loss = loss_fn.forward(salida_softmax, y, [capa1, capa2])
+        salida2 = capa2.forward(salida_relu1)
+        salida_relu2 = relu2.forward(salida2)
+
+        salida3 = capa3.forward(salida_relu2)
+        salida_softmax = softmax.forward(salida3)
+
+        loss = loss_fn.forward(salida_softmax, y_batch, [capa1, capa2])
         loss_total += loss
 
-        
-        prediccion = np.argmax(salida_softmax)
-        etiqueta_verdadera = np.argmax(y)
-        if prediccion == etiqueta_verdadera:
-            correctos += 1
+        predicciones = np.argmax(salida_softmax, axis=1)
+        etiquetas_verdaderas = np.argmax(y_batch, axis=1)
+        correctos += np.sum(predicciones == etiquetas_verdaderas)
 
-        
         grad_loss = loss_fn.backward()  
-        grad_softmax = capa2.backward(grad_loss, tasa_aprendizaje)  
-        grad_relu = relu.backward(grad_softmax)
-        capa1.backward(grad_relu)
+        grad_softmax = capa3.backward(grad_loss, tasa_aprendizaje)
+        grad_relu2 = relu2.backward(grad_softmax)
+        grad_capa2 = capa2.backward(grad_relu2, tasa_aprendizaje)
+        grad_relu1 = relu1.backward(grad_capa2)
+        capa1.backward(grad_relu1, tasa_aprendizaje)
 
     optimizer.post_update_params()  
 
-    precision = correctos / total * 100
-
-    pérdidas.append(loss_total / total)
+    precision = correctos / (num_batches * batch_size) * 100
+    pérdidas.append(loss_total / num_batches)
     precisiones.append(precision)
 
     print(f"Época {epoch+1}/{num_epochs}, Pérdida: {pérdidas[-1]:.4f}, Precisión: {precisiones[-1]:.2f}%")
 
 precision_total = np.mean(precisiones)
 print(f"\n Precisión total promedio en {num_epochs} épocas: {precision_total:.2f}%")
+
 
 plt.plot(range(1, num_epochs+1), pérdidas, label="Pérdida")
 plt.xlabel('Épocas')
@@ -92,14 +103,18 @@ plt.show()
 
 print("Entrenamiento finalizado.")
 
-for i in range(10): 
+for i in range(20): 
     x = X_train[i:i+1]  
     y_true = Y_train[i:i+1]  
 
     salida1 = capa1.forward(x)
-    salida_relu = relu.forward(salida1)
-    salida2 = capa2.forward(salida_relu)
-    salida_softmax = softmax.forward(salida2)
+    salida_relu1 = relu1.forward(salida1)
+
+    salida2 = capa2.forward(salida_relu1)
+    salida_relu2 = relu2.forward(salida2)
+
+    salida3 = capa3.forward(salida_relu2)
+    salida_softmax = softmax.forward(salida3)
     
     prediccion = np.argmax(salida_softmax)
     etiqueta_verdadera = np.argmax(y_true)

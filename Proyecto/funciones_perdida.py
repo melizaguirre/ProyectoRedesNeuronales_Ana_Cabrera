@@ -1,8 +1,9 @@
 import numpy as np
 class crossEntropyLoss:
-    def __init__(self):
+    def __init__(self, l2_lambda=0.0001):
         self.y_pred = None
         self.y_true = None
+        self.l2_lambda = l2_lambda 
 
     """def forward(self, y_pred, y_true):
         self.y_pred = y_pred
@@ -16,19 +17,16 @@ class crossEntropyLoss:
         
     def forward(self, y_pred, y_true, capas):
         batch_size = y_pred.shape[0]
-        self.y_pred = y_pred
+        self.y_pred = np.clip(y_pred, 1e-15, 1 - 1e-15) 
         self.y_true = y_true
 
-        epsilon = 1e-15
-        y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+        loss = -np.sum(y_true * np.log(self.y_pred)) / batch_size
 
-        loss = -np.sum(y_true * np.log(y_pred)) / batch_size
-
-        l2_loss = sum(np.sum(capa.pesos ** 2) for capa in capas if hasattr(capa, 'pesos'))
-        loss += (0.0001 / 2) * l2_loss  
+        if self.l2_lambda > 0:
+            l2_loss = sum(np.sum(capa.pesos ** 2) for capa in capas if hasattr(capa, 'pesos'))
+            loss += (self.l2_lambda / 2) * l2_loss  
 
         return loss
 
     def backward(self):
-        grad = self.y_pred - self.y_true
-        return grad
+        return (self.y_pred - self.y_true) / self.y_true.shape[0] 

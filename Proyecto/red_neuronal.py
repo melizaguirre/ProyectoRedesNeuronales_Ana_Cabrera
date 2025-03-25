@@ -2,7 +2,7 @@ import numpy as np
 
 class CapaDensa:
     def __init__(self, entradas: int, neuronas: int, l2_lambda: float) -> None:
-        self.pesos=np.random.rand(entradas, neuronas) *0.01
+        self.pesos=np.random.randn(entradas, neuronas) *0.01
         self.sesgos=np.zeros((1, neuronas))
         self.l2_lambda = l2_lambda
 
@@ -11,8 +11,8 @@ class CapaDensa:
         self.salida = np.dot(datos_entrada, self.pesos)+ self.sesgos
         return self.salida  
 
-    def backward(self, grad_salida, tasa_aprendizaje=0.1):
-        grad_pesos = np.dot(self.entrada.T, grad_salida) + self.l2_lambda * self.pesos
+    def backward(self, grad_salida, tasa_aprendizaje=0.1, batch_size=1):
+        grad_pesos = np.dot(self.entrada.T, grad_salida) + (self.l2_lambda / batch_size) * self.pesos
         grad_sesgos = np.sum(grad_salida, axis=0, keepdims=True)
         grad_entrada = np.dot(grad_salida, self.pesos.T)
         
