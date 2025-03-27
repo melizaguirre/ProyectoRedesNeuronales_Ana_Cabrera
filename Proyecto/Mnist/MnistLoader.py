@@ -34,6 +34,8 @@ test_labels_file = "t10k-labels-idx1-ubyte"
 train_images_file = "train-images-idx3-ubyte"
 train_labels_file = "train-labels-idx1-ubyte"
 
+
+dataset_files = [test_images_file, test_labels_file]
 dataset_files = [test_images_file, test_labels_file, train_images_file, train_labels_file]
 
 if not checkFileExists("dataset", dataset_files):
@@ -46,10 +48,10 @@ test_labels_path = ds_folder_path / "t10k-labels-idx1-ubyte"
 train_images_path = ds_folder_path / "train-images-idx3-ubyte"
 train_labels_path = ds_folder_path / "train-labels-idx1-ubyte"
 
-#mnist_test = MnistDs.MnistDataset()
+mnist_test = MnistDs.MnistDataset()
 mnist_train = MnistDs.MnistDataset()
 
-#mnist_test.load(test_images_path, test_labels_path)
+mnist_test.load(test_images_path, test_labels_path)
 mnist_train.load(train_images_path, train_labels_path)
 
 print(mnist_train.images.shape)
@@ -58,9 +60,16 @@ print(mnist_train.labels.shape)
 displayImage(mnist_train.images[0], "MNIST Image 1")
 displayImage(mnist_train.images[1], "MNIST Image 2")
 displayImage(mnist_train.images[2], "MNIST Image 3")
+
 #print(mnist_train.one_hot_labels[0])  
 #print(mnist_train.one_hot_labels[1])  
 #print(mnist_train.one_hot_labels[2])
 
 
 print(f"Labels: {mnist_train.labels[0]}, {mnist_train.labels[1]}, {mnist_train.labels[2]}")
+
+print(f"Test data shape: {mnist_test.images.shape}")
+displayImage(mnist_test.images[0], "MNIST Test Image 1")
+displayImage(mnist_test.images[1], "MNIST Test Image 2")
+displayImage(mnist_test.images[2], "MNIST Test Image 3")
+print(f"Test Labels: {mnist_test.labels[0]}, {mnist_test.labels[1]}, {mnist_test.labels[2]}")

@@ -5,6 +5,7 @@ class MnistDataset:
     def __init__(self):
         self.images = None
         self.labels = None
+        self.one_hot_labels = None
 
     def load(self, images_filename, labels_filename):
         # Load images

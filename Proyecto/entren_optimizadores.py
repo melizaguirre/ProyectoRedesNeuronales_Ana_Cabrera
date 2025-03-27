@@ -1,4 +1,5 @@
 import numpy as np 
+import pickle 
 import matplotlib.pyplot as plt
 from red_neuronal import CapaDensa, ReLU, Softmax
 from funciones_perdida import crossEntropyLoss
@@ -8,18 +9,18 @@ from optimizadores import Optimizer_SGD, Optimizer_Adam
 
 mnist = MnistDataset()
 mnist.load("Mnist/dataset/train-images-idx3-ubyte", "Mnist/dataset/train-labels-idx1-ubyte")
+#mnist.load("Mnist/dataset/t10k-images-idx3-ubyte", "Mnist/dataset/t10k-labels-idx1-ubyte")
 X_train = mnist.images
 Y_train = mnist.one_hot_labels
 
 
 entrada_dim = 784
 oculta_dim1 = 128
-oculta_dim2 = 64
+oculta_dim2 = 128
 salida_dim = 10
-tasa_aprendizaje = 0.01
-num_epochs = 50 
+tasa_aprendizaje = 0.1
+num_epochs = 10
 batch_size = 64 
-
 l2_lambda = 0.0001
 
 capa1 = CapaDensa(entrada_dim, oculta_dim1, l2_lambda)
@@ -103,22 +104,16 @@ plt.show()
 
 print("Entrenamiento finalizado.")
 
-for i in range(20): 
-    x = X_train[i:i+1]  
-    y_true = Y_train[i:i+1]  
+pesos = {
+    "capa1_pesos": capa1.pesos,
+    "capa1_bias": capa1.sesgos,
+    "capa2_pesos": capa2.pesos,
+    "capa2_bias": capa2.sesgos,
+    "capa3_pesos": capa3.pesos,
+    "capa3_bias": capa3.sesgos,
+}
 
-    salida1 = capa1.forward(x)
-    salida_relu1 = relu1.forward(salida1)
+with open("pesos_red.pkl", "wb") as archivo:
+    pickle.dump(pesos, archivo)
 
-    salida2 = capa2.forward(salida_relu1)
-    salida_relu2 = relu2.forward(salida2)
-
-    salida3 = capa3.forward(salida_relu2)
-    salida_softmax = softmax.forward(salida3)
-    
-    prediccion = np.argmax(salida_softmax)
-    etiqueta_verdadera = np.argmax(y_true)
-
-    plt.imshow(x.reshape(28, 28), cmap="gray")
-    plt.title(f"Predicción: {prediccion}, Verdadera: {etiqueta_verdadera}")
-    plt.show()
+print("Pesos guardados en 'pesos_red.pkl'")
